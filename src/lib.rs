@@ -17,8 +17,8 @@ impl <'a, 'i> Merge<'a, 'i> {
         Self{key: key, src:iter, curr:Vec::with_capacity(0), cidx: 0}
     }
 
-    pub fn decrypt (key: &KeyTree, context: &[u8;32], cachet: &Cachet) -> Result<Vec<u8>, LockBlockError> {
-        key.derive_and_decrypt(context, cachet).map_err(|_| LockBlockError::DecryptionError)
+    pub fn decrypt (key: &KeyTree, context: &[u8;32], cachet: &Cachet) -> Result<Vec<u8>, SchismError> {
+        key.derive_and_decrypt(context, cachet).map_err(|_| SchismError::DecryptionError)
     }
 }
 
@@ -63,16 +63,16 @@ impl<'a, R> Split<'a, R> {
         Self{key, read,size}
     }
 
-    pub fn encrypt (key: &KeyTree, data:&[u8]) -> Result<([u8;32], Cachet), LockBlockError> {
+    pub fn encrypt (key: &KeyTree, data:&[u8]) -> Result<([u8;32], Cachet), SchismError> {
         let sha256::Digest(hash) = sha256::hash(data);
-        let cachet = key.derive_and_encrypt(&hash,data).map_err(|_| LockBlockError::EncryptionError)?;
+        let cachet = key.derive_and_encrypt(&hash,data).map_err(|_| SchismError::EncryptionError)?;
         Ok( (hash, cachet) )
     }
 
 }
 
 impl<'a, R> Iterator for Split<'a, R> where R: Read {
-    type Item = Result<([u8;32], Cachet), LockBlockError>;
+    type Item = Result<([u8;32], Cachet), SchismError>;
 
     // can call Some(Err(....)) forever, use a iter::Collect with a Result type
     fn next(&mut self) -> Option<Self::Item> {
@@ -81,7 +81,7 @@ impl<'a, R> Iterator for Split<'a, R> where R: Read {
             .by_ref()
             .take(buffer.capacity() as u64)
             .read_to_end(&mut buffer)
-            .map_err( |e| LockBlockError::IOError(e) )
+            .map_err( |e| SchismError::IOError(e) )
             .and_then( |c| if c == 0 { Ok(None) } else {
                 Self::encrypt(self.key, &buffer[..c]).map(|t| Some(t))
             })
@@ -90,7 +90,7 @@ impl<'a, R> Iterator for Split<'a, R> where R: Read {
 }
 
 #[derive(Debug)]
-pub enum LockBlockError {
+pub enum SchismError {
     IOError(io::Error),
     EncryptionSourceError,
     EncryptionError,
