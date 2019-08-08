@@ -52,7 +52,7 @@ impl <'a, 'i> Read for Merge<'a, 'i> {
 
 // Reads unencryted bytes into an Iterator that yeilds encrypted (context,cachet) encrypted blocks
 // of a fixed size.
-struct Split<'a, R> {
+pub struct Split<'a, R> {
     key: &'a KeyTree,
     read: R,
     size: usize,
