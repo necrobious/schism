@@ -10,4 +10,4 @@ nom = "4.2"
 byteorder = "1"
 trustchain = { git = "https://github.com/necrobious/trust-chain", rev = "27afa96"  }
 cachet = { git = "https://github.com/necrobious/cachet", rev = "a8c1218"  }
-keytree = { git = "https://github.com/necrobious/keytree" , rev = "80d235c" }
+keytree = { git = "https://github.com/necrobious/keytree" , rev = "e86acdf" }
